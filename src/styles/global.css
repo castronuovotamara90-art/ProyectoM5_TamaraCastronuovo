@@ -1,0 +1,70 @@
+@import './themes.css';
+@import 'tailwindcss';
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--color-background-canvas);
+	color: var(--color-text-primary);
+}
+
+button {
+	font: inherit;
+}
+
+.app-shell {
+	min-height: 100vh;
+	padding: var(--spacing-6) var(--spacing-4);
+	background: var(--color-background-canvas);
+	color: var(--color-text-primary);
+}
+
+.app-title {
+	margin: 0 0 var(--spacing-6);
+	color: var(--color-text-primary);
+	font-size: clamp(1.75rem, 8vw, 2rem);
+	line-height: 1.15;
+}
+
+.ui-button {
+	border: 1px solid var(--color-border-default);
+	border-radius: var(--radius-md);
+	padding: var(--spacing-3) var(--spacing-4);
+	background: var(--color-brand-primary);
+	color: var(--color-text-inverse);
+	box-shadow: var(--shadow-sm);
+	cursor: pointer;
+	transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.ui-button:hover {
+	background: var(--color-brand-primary-hover);
+	box-shadow: var(--shadow-md);
+}
+
+.ui-button:focus-visible {
+	outline: 3px solid var(--color-border-focus);
+	outline-offset: 2px;
+}
+
+.theme-toggle {
+	width: 100%;
+	max-width: 20rem;
+}
+
+@media (min-width: 48rem) {
+	.app-shell {
+		padding: var(--spacing-10) var(--spacing-8);
+	}
+
+	.app-title {
+		font-size: 2.25rem;
+	}
+
+	.theme-toggle {
+		width: auto;
+	}
+}
