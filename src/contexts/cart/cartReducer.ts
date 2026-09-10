@@ -1,0 +1,61 @@
+import type { CartAction, CartState } from './CartContext.types'
+import type { CartItem } from '../../types/cartItem.types'
+
+function calculateTotal(items: CartItem[]): number {
+	return items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+}
+
+// Reducer puro: nada de React, nada de context. Dado un estado y una
+// acción, siempre devuelve el mismo resultado — se puede testear solo.
+export function cartReducer(state: CartState, action: CartAction): CartState {
+	switch (action.type) {
+		// Cada case en su propio bloque {} para no chocar nombres de
+		// variables entre cases dentro del mismo switch.
+		case 'ADD_ITEM': {
+			const product = action.payload
+			const existingItem = state.items.find((item) => item.product.id === product.id)
+
+			const items = existingItem
+				? state.items.map((item) =>
+						item.product.id === product.id
+							? { ...item, quantity: Math.min(item.quantity + 1, product.stock) }
+							: item,
+					)
+				: [...state.items, { product, quantity: 1, addedAt: new Date() }]
+
+			// El total se recalcula siempre a partir de items, nunca se
+			// actualiza "a mano": evita que total quede desincronizado.
+			return { items, total: calculateTotal(items) }
+		}
+
+		case 'REMOVE_ITEM': {
+			const items = state.items.filter((item) => item.product.id !== action.payload)
+
+			return { items, total: calculateTotal(items) }
+		}
+
+		case 'UPDATE_QUANTITY': {
+			const { productId, quantity } = action.payload
+
+			// Cantidad cero elimina el item: así los componentes no
+			// tienen que decidir entre "actualizar" o "eliminar".
+			const items =
+				quantity <= 0
+					? state.items.filter((item) => item.product.id !== productId)
+					: state.items.map((item) =>
+							item.product.id === productId
+								? { ...item, quantity: Math.min(quantity, item.product.stock) }
+								: item,
+						)
+
+			return { items, total: calculateTotal(items) }
+		}
+
+		case 'CLEAR_CART': {
+			return { items: [], total: 0 }
+		}
+
+		default:
+			return state
+	}
+}

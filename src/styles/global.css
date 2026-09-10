@@ -50,9 +50,64 @@ button {
 	outline-offset: 2px;
 }
 
+.ui-button--danger {
+	background: var(--color-feedback-danger);
+}
+
+.ui-button--danger:hover {
+	background: var(--color-feedback-danger-subtle);
+	color: var(--color-feedback-danger);
+}
+
+.ui-button--icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.5rem;
+	height: 2.5rem;
+	padding: 0;
+	border-radius: var(--radius-full);
+}
+
 .theme-toggle {
 	width: 100%;
 	max-width: 20rem;
+}
+
+.modal-backdrop {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgb(0 0 0 / 0.5);
+	padding: var(--spacing-4);
+	z-index: 10;
+}
+
+.ui-spinner {
+	width: 2rem;
+	height: 2rem;
+	border: 3px solid var(--color-border-subtle);
+	border-top-color: var(--color-brand-primary);
+	border-radius: var(--radius-full);
+	animation: ui-spin 0.7s linear infinite;
+}
+
+@keyframes ui-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.modal-content {
+	width: 100%;
+	max-width: 24rem;
+	padding: var(--spacing-6);
+	border-radius: var(--radius-lg);
+	background: var(--color-background-elevated);
+	color: var(--color-text-primary);
+	box-shadow: var(--shadow-lg);
 }
 
 @media (min-width: 48rem) {
