@@ -25,13 +25,13 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
 
 			// El total se recalcula siempre a partir de items, nunca se
 			// actualiza "a mano": evita que total quede desincronizado.
-			return { items, total: calculateTotal(items) }
+			return { ...state, items, total: calculateTotal(items) }
 		}
 
 		case 'REMOVE_ITEM': {
 			const items = state.items.filter((item) => item.product.id !== action.payload)
 
-			return { items, total: calculateTotal(items) }
+			return { ...state, items, total: calculateTotal(items) }
 		}
 
 		case 'UPDATE_QUANTITY': {
@@ -48,11 +48,24 @@ export function cartReducer(state: CartState, action: CartAction): CartState {
 								: item,
 						)
 
-			return { items, total: calculateTotal(items) }
+			return { ...state, items, total: calculateTotal(items) }
 		}
 
 		case 'CLEAR_CART': {
-			return { items: [], total: 0 }
+			return { items: [], total: 0, discountCode: null, discountType: null, discountValue: 0 }
+		}
+
+		case 'APPLY_DISCOUNT': {
+			return {
+				...state,
+				discountCode: action.payload.code,
+				discountType: action.payload.type,
+				discountValue: action.payload.value,
+			}
+		}
+
+		case 'REMOVE_DISCOUNT': {
+			return { ...state, discountCode: null, discountType: null, discountValue: 0 }
 		}
 
 		default:

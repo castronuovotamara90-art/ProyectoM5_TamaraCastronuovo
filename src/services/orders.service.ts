@@ -29,11 +29,15 @@ export const createOrder = async (
 	userId: string,
 	items: CartItem[],
 	total: number,
+	discount?: { code: string; amount: number },
 ): Promise<string> => {
 	const ref = await addDoc(ordersCollection, {
 		userId,
 		items,
 		total,
+		// Firestore rechaza campos con valor `undefined`: solo se
+		// agregan si realmente hubo un código aplicado.
+		...(discount ? { discountCode: discount.code, discountAmount: discount.amount } : {}),
 		status: 'pending' satisfies OrderStatus,
 		createdAt: serverTimestamp(),
 		updatedAt: serverTimestamp(),

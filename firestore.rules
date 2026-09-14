@@ -39,6 +39,15 @@ service cloud.firestore {
 			allow write: if isAdmin();
 		}
 
+		// coupons/{code}: nadie lee ni escribe directo desde el cliente.
+		// Se validan solo a través de api/apply-coupon.ts (Firebase Admin,
+		// se salta estas reglas) para no exponer códigos activos a
+		// cualquiera que abra la consola del navegador.
+		match /coupons/{code} {
+			allow read: if false;
+			allow write: if isAdmin();
+		}
+
 		// orders/{id}: un customer solo puede crear/leer sus propias
 		// órdenes (y siempre arrancan en "pending"); solo un admin puede
 		// cambiar el status. No se permite borrar órdenes.

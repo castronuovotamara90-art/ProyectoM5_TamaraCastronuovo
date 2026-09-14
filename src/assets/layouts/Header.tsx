@@ -20,7 +20,7 @@ function Header() {
 		<header className="mb-4 flex w-full flex-col items-center gap-2 sm:gap-4">
 			<div className="flex w-full items-center justify-between px-4 sm:w-auto sm:justify-center sm:px-0">
 				<Link to="/" aria-label="Salvia & Co. — Inicio">
-					<Logo variant={theme === 'dark' ? 'dark' : 'light'} height={36} />
+					<Logo variant={theme === 'dark' ? 'dark' : 'light'} height={46} />
 				</Link>
 
 				{/* Solo visible en mobile: en sm+ el nav ya queda siempre abierto. */}
@@ -36,7 +36,7 @@ function Header() {
 			</div>
 
 			<nav
-				className={`${
+				className={`header-nav ${
 					isMenuOpen ? 'flex' : 'hidden'
 				} w-full flex-col items-center gap-2 sm:flex sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4`}
 			>

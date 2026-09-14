@@ -8,5 +8,8 @@ type LogoProps = {
 
 export function Logo({ variant = 'light', height = 40 }: LogoProps) {
   const src = variant === 'dark' ? logoDark : logoLight;
-  return <img src={src} alt="Salvia & Co." height={height} />;
+  // El preflight de Tailwind fuerza `img { height: auto }`, que pisa
+  // el atributo HTML `height` — por eso va como estilo inline (gana
+  // por especificidad) en vez de como prop del <img>.
+  return <img src={src} alt="Salvia & Co." style={{ height, width: 'auto' }} />;
 }

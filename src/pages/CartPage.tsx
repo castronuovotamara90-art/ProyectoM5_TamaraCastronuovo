@@ -6,13 +6,45 @@ import { CartList } from '../assets/common/CartList'
 import { useCart } from '../contexts/cart'
 
 export function CartPage() {
-	const { items, total, removeItem, updateQuantity, clearCart } = useCart()
+	const {
+		items,
+		subtotal,
+		discountCode,
+		discountAmount,
+		total,
+		removeItem,
+		updateQuantity,
+		clearCart,
+		applyDiscountCode,
+		removeDiscountCode,
+	} = useCart()
 	const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+	const [couponInput, setCouponInput] = useState('')
+	const [couponMessage, setCouponMessage] = useState<{ text: string; ok: boolean } | null>(null)
+	const [applyingCoupon, setApplyingCoupon] = useState(false)
 	const navigate = useNavigate()
 
 	const handleConfirmClear = () => {
 		clearCart()
 		setIsConfirmOpen(false)
+	}
+
+	const handleApplyCoupon = async () => {
+		if (!couponInput.trim()) return
+
+		setApplyingCoupon(true)
+		setCouponMessage(null)
+
+		const result = await applyDiscountCode(couponInput.trim())
+
+		setCouponMessage({ text: result.message, ok: result.success })
+		setApplyingCoupon(false)
+		if (result.success) setCouponInput('')
+	}
+
+	const handleRemoveCoupon = () => {
+		removeDiscountCode()
+		setCouponMessage(null)
 	}
 
 	return (
@@ -25,6 +57,33 @@ export function CartPage() {
 				<>
 					<CartList items={items} onRemove={removeItem} onUpdateQuantity={updateQuantity} />
 
+					{discountCode ? (
+						<div className="mb-2 flex flex-wrap items-center gap-2">
+							<span>
+								Código <strong>{discountCode}</strong> aplicado (-${discountAmount})
+							</span>
+							<Button variant="danger" type="button" onClick={handleRemoveCoupon}>
+								Quitar código
+							</Button>
+						</div>
+					) : (
+						<div className="mb-2 flex flex-wrap items-center gap-2">
+							<input
+								type="text"
+								value={couponInput}
+								onChange={(event) => setCouponInput(event.target.value)}
+								placeholder="Código de descuento"
+							/>
+							<Button type="button" onClick={handleApplyCoupon} disabled={applyingCoupon}>
+								{applyingCoupon ? 'Validando...' : 'Aplicar código'}
+							</Button>
+						</div>
+					)}
+
+					{couponMessage && <p role="alert">{couponMessage.text}</p>}
+
+					<p>Subtotal: ${subtotal}</p>
+					{discountCode && <p>Descuento: -${discountAmount}</p>}
 					<p>Total: ${total}</p>
 
 					<Button variant="danger" type="button" onClick={() => setIsConfirmOpen(true)}>

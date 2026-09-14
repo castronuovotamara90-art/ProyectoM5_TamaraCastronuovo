@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/auth'
 import { createOrder } from '../services/orders.service'
 
 export function CheckoutPage() {
-	const { items, total, clearCart } = useCart()
+	const { items, subtotal, discountCode, discountAmount, total, clearCart } = useCart()
 	const { user } = useAuth()
 	const navigate = useNavigate()
 	const [submitting, setSubmitting] = useState(false)
@@ -23,7 +23,12 @@ export function CheckoutPage() {
 		setError(null)
 
 		try {
-			const orderId = await createOrder(user.uid, items, total)
+			const orderId = await createOrder(
+				user.uid,
+				items,
+				total,
+				discountCode ? { code: discountCode, amount: discountAmount } : undefined,
+			)
 			clearCart()
 			navigate(`/orders/${orderId}`)
 		} catch (err) {
@@ -44,6 +49,12 @@ export function CheckoutPage() {
 				))}
 			</ul>
 
+			<p>Subtotal: ${subtotal}</p>
+			{discountCode && (
+				<p>
+					Descuento ({discountCode}): -${discountAmount}
+				</p>
+			)}
 			<p>Total: ${total}</p>
 
 			{error && <p role="alert">{error}</p>}

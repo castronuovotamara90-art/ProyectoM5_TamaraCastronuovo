@@ -77,6 +77,12 @@ button {
 	max-width: 20rem;
 }
 
+.header-nav a,
+.header-nav .ui-button {
+	font-size: 1.0625rem;
+	font-weight: 600;
+}
+
 .favorites-sidebar-backdrop {
 	position: fixed;
 	inset: 0;

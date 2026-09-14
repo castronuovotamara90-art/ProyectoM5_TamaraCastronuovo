@@ -7,6 +7,8 @@ export interface Order {
 	userId: string
 	items: CartItem[]
 	total: number
+	discountCode?: string
+	discountAmount?: number
 	status: OrderStatus
 	createdAt?: Date
 	updatedAt?: Date
