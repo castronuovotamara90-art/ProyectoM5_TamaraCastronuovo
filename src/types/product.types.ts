@@ -11,6 +11,10 @@ export interface Product {
 	name: string
 	nameLower: string
 	image: string
+	// Imágenes adicionales para el carrusel del ProductCard. Si falta
+	// o tiene 0-1 elementos, la card se comporta como una sola imagen
+	// (sin flechas) usando `image` como respaldo.
+	images?: string[]
 	description: string
 	price: number
 	stock: number

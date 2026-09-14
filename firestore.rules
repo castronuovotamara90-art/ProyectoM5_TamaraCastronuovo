@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+	match /databases/{database}/documents {
+
+		function isSignedIn() {
+			return request.auth != null;
+		}
+
+		function isOwner(userId) {
+			return isSignedIn() && request.auth.uid == userId;
+		}
+
+		// Lee el rol del propio documento de usuario. Si el usuario no
+		// existe todavía (justo antes del signup) devuelve null.
+		function getRole() {
+			return isSignedIn()
+				? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+				: null;
+		}
+
+		function isAdmin() {
+			return getRole() == 'admin';
+		}
+
+		// users/{uid}: cada uno lee/edita el suyo, un admin puede leer y
+		// editar cualquiera. Nadie puede auto-asignarse admin al crear
+		// su propio documento (por eso el create fuerza role == 'customer').
+		match /users/{userId} {
+			allow read: if isOwner(userId) || isAdmin();
+			allow create: if isOwner(userId) && request.resource.data.role == 'customer';
+			allow update: if isOwner(userId) && request.resource.data.role == resource.data.role;
+			allow update: if isAdmin();
+		}
+
+		// products/{id}: catálogo público de lectura, solo admin escribe.
+		match /products/{productId} {
+			allow read: if true;
+			allow write: if isAdmin();
+		}
+
+		// orders/{id}: un customer solo puede crear/leer sus propias
+		// órdenes (y siempre arrancan en "pending"); solo un admin puede
+		// cambiar el status. No se permite borrar órdenes.
+		match /orders/{orderId} {
+			allow create: if isSignedIn()
+				&& request.resource.data.userId == request.auth.uid
+				&& request.resource.data.status == 'pending';
+			allow read: if isSignedIn()
+				&& (resource.data.userId == request.auth.uid || isAdmin());
+			allow update: if isAdmin();
+			allow delete: if false;
+		}
+	}
+}

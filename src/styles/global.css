@@ -7,6 +7,7 @@
 
 body {
 	margin: 0;
+	font-family: var(--font-body);
 	background: var(--color-background-canvas);
 	color: var(--color-text-primary);
 }
@@ -25,6 +26,8 @@ button {
 .app-title {
 	margin: 0 0 var(--spacing-6);
 	color: var(--color-text-primary);
+	font-family: var(--font-display);
+	font-weight: 500;
 	font-size: clamp(1.75rem, 8vw, 2rem);
 	line-height: 1.15;
 }
@@ -74,13 +77,64 @@ button {
 	max-width: 20rem;
 }
 
+.favorites-sidebar-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgb(42 36 28 / 0.45);
+	z-index: 20;
+}
+
+.favorites-sidebar {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	max-width: 22rem;
+	background: var(--color-background-elevated);
+	color: var(--color-text-primary);
+	box-shadow: var(--shadow-lg);
+	overflow-y: auto;
+	z-index: 21;
+}
+
+.toast-container {
+	position: fixed;
+	bottom: var(--spacing-4);
+	right: var(--spacing-4);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-2);
+	z-index: 30;
+}
+
+.toast {
+	padding: var(--spacing-3) var(--spacing-4);
+	border-radius: var(--radius-md);
+	background: var(--color-background-inverse);
+	color: var(--color-text-inverse);
+	box-shadow: var(--shadow-lg);
+	animation: toast-in 200ms ease;
+}
+
+@keyframes toast-in {
+	from {
+		opacity: 0;
+		transform: translateY(0.5rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 .modal-backdrop {
 	position: fixed;
 	inset: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background: rgb(0 0 0 / 0.5);
+	background: rgb(42 36 28 / 0.45);
 	padding: var(--spacing-4);
 	z-index: 10;
 }
@@ -108,6 +162,146 @@ button {
 	background: var(--color-background-elevated);
 	color: var(--color-text-primary);
 	box-shadow: var(--shadow-lg);
+}
+
+.product-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+	gap: var(--spacing-8) var(--spacing-4);
+}
+
+.product-card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-2);
+}
+
+.product-card__media {
+	position: relative;
+	aspect-ratio: 3 / 4;
+	overflow: hidden;
+	background: var(--color-background-subtle);
+	border-radius: var(--radius-none);
+}
+
+.product-card__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.product-card__badge {
+	position: absolute;
+	top: var(--spacing-3);
+	left: var(--spacing-3);
+	padding: var(--spacing-1) var(--spacing-3);
+	border-radius: var(--radius-full);
+	background: var(--color-background-inverse);
+	color: var(--color-text-inverse);
+	font-size: 0.75rem;
+	z-index: 1;
+}
+
+.product-card__badge--out-of-stock {
+	background: var(--color-feedback-warning);
+	color: var(--color-text-inverse);
+}
+
+.product-card__wishlist {
+	position: absolute;
+	top: var(--spacing-3);
+	right: var(--spacing-3);
+	width: 2rem;
+	height: 2rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	border-radius: var(--radius-full);
+	background: transparent;
+	color: var(--color-text-primary);
+	cursor: pointer;
+	z-index: 1;
+}
+
+.product-card__wishlist[aria-pressed='true'] {
+	color: var(--color-feedback-danger);
+}
+
+/* Flechas del carrusel: solo visibles si el producto tiene más de una imagen. */
+.product-card__nav {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 2rem;
+	height: 2rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: none;
+	border-radius: var(--radius-full);
+	background: var(--color-background-surface);
+	color: var(--color-text-primary);
+	box-shadow: var(--shadow-sm);
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 160ms ease;
+}
+
+.product-card__nav--prev {
+	left: var(--spacing-3);
+}
+
+.product-card__nav--next {
+	right: var(--spacing-3);
+}
+
+.product-card__media:hover .product-card__nav {
+	opacity: 1;
+}
+
+.product-card__add-to-cart {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: var(--spacing-3);
+	border: none;
+	background: var(--color-background-surface);
+	color: var(--color-text-primary);
+	font-size: 0.8125rem;
+	letter-spacing: 0.02em;
+	text-align: center;
+	cursor: pointer;
+	opacity: 0;
+	transform: translateY(100%);
+	transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.product-card__media:hover .product-card__add-to-cart {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.product-card__name {
+	margin: 0;
+	font-size: 0.9375rem;
+	color: var(--color-text-primary);
+}
+
+.product-card__price {
+	margin: 0;
+	font-size: 0.9375rem;
+	color: var(--color-text-secondary);
+}
+
+/* Desktop: al menos 4 columnas fijas, independiente del cálculo
+   automático de auto-fill (que ya alcanza a 4+ solo con el fix de
+   ancho, pero esto lo deja garantizado explícitamente). */
+@media (min-width: 64rem) {
+	.product-grid {
+		grid-template-columns: repeat(4, 1fr);
+	}
 }
 
 @media (min-width: 48rem) {

@@ -35,7 +35,7 @@ export function ProductList() {
 	const hasFilters = Boolean(categoryId) || Boolean(searchText.trim())
 
 	return (
-		<div className="flex flex-col items-center">
+		<div className="flex w-full flex-col items-center">
 			<div className="mb-4 flex flex-wrap items-center justify-center gap-4">
 				<select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
 					<option value="">Todas las categorías</option>

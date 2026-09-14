@@ -1,20 +1,35 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../assets/layouts/ui/buttons'
 import { useCart } from '../contexts/cart'
+import { useAuth } from '../contexts/auth'
+import { createOrder } from '../services/orders.service'
 
-// Placeholder: no hay integración de pago real todavía, solo
-// demuestra que la ruta protegida funciona de punta a punta.
 export function CheckoutPage() {
 	const { items, total, clearCart } = useCart()
+	const { user } = useAuth()
 	const navigate = useNavigate()
+	const [submitting, setSubmitting] = useState(false)
+	const [error, setError] = useState<string | null>(null)
 
 	if (items.length === 0) {
 		return <p>No hay nada para pagar todavía.</p>
 	}
 
-	const handleConfirm = () => {
-		clearCart()
-		navigate('/')
+	const handleConfirm = async () => {
+		if (!user) return
+
+		setSubmitting(true)
+		setError(null)
+
+		try {
+			const orderId = await createOrder(user.uid, items, total)
+			clearCart()
+			navigate(`/orders/${orderId}`)
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'No se pudo confirmar el pedido.')
+			setSubmitting(false)
+		}
 	}
 
 	return (
@@ -31,8 +46,10 @@ export function CheckoutPage() {
 
 			<p>Total: ${total}</p>
 
-			<Button type="button" onClick={handleConfirm}>
-				Confirmar pedido
+			{error && <p role="alert">{error}</p>}
+
+			<Button type="button" onClick={handleConfirm} disabled={submitting}>
+				{submitting ? 'Confirmando...' : 'Confirmar pedido'}
 			</Button>
 		</div>
 	)
