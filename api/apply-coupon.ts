@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { cert, getApps, initializeApp } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'
-import type { CouponType } from '../src/types/coupon.types'
+import type { CouponType } from '../src/types/coupon.types.ts'
 
 // Firebase Admin: las reglas de Firestore bloquean la lectura directa
 // de "coupons" desde el cliente (así nadie puede listar códigos
