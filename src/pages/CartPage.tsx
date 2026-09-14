@@ -4,6 +4,7 @@ import Button from '../assets/layouts/ui/buttons'
 import Modal from '../assets/layouts/ui/modal'
 import { CartList } from '../assets/common/CartList'
 import { useCart } from '../contexts/cart'
+import { formatPrice } from '../utils/money'
 
 export function CartPage() {
 	const {
@@ -60,7 +61,7 @@ export function CartPage() {
 					{discountCode ? (
 						<div className="mb-2 flex flex-wrap items-center gap-2">
 							<span>
-								Código <strong>{discountCode}</strong> aplicado (-${discountAmount})
+								Código <strong>{discountCode}</strong> aplicado (-${formatPrice(discountAmount)})
 							</span>
 							<Button variant="danger" type="button" onClick={handleRemoveCoupon}>
 								Quitar código
@@ -82,9 +83,9 @@ export function CartPage() {
 
 					{couponMessage && <p role="alert">{couponMessage.text}</p>}
 
-					<p>Subtotal: ${subtotal}</p>
-					{discountCode && <p>Descuento: -${discountAmount}</p>}
-					<p>Total: ${total}</p>
+					<p>Subtotal: ${formatPrice(subtotal)}</p>
+					{discountCode && <p>Descuento: -${formatPrice(discountAmount)}</p>}
+					<p>Total: ${formatPrice(total)}</p>
 
 					<Button variant="danger" type="button" onClick={() => setIsConfirmOpen(true)}>
 						Limpiar carrito

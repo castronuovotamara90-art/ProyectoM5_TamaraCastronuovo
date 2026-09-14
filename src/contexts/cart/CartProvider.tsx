@@ -10,6 +10,7 @@ import { CartContext } from './CartContext'
 import type { ApplyDiscountResult, CartState } from './CartContext.types'
 import type { CartItem } from '../../types/cartItem.types'
 import type { Product } from '../../types/product.types'
+import { roundMoney } from '../../utils/money'
 
 const STORAGE_KEY = 'cart'
 
@@ -22,7 +23,7 @@ const initialState: CartState = {
 }
 
 function calculateTotal(items: CartItem[]): number {
-	return items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+	return roundMoney(items.reduce((sum, item) => sum + item.product.price * item.quantity, 0))
 }
 
 // Se llama una sola vez al montar (tercer argumento de useReducer),
@@ -141,7 +142,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 				? state.total * (state.discountValue / 100)
 				: state.discountValue
 
-		return Math.min(Math.round(raw * 100) / 100, state.total)
+		return Math.min(roundMoney(raw), state.total)
 	}, [state.discountType, state.discountValue, state.total])
 
 	// Memoizado: el objeto se recrearía en cada render del provider,
@@ -152,7 +153,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 			subtotal: state.total,
 			discountCode: state.discountCode,
 			discountAmount,
-			total: Math.max(0, state.total - discountAmount),
+			total: Math.max(0, roundMoney(state.total - discountAmount)),
 			itemCount,
 			addItem,
 			removeItem,

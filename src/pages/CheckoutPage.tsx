@@ -4,6 +4,7 @@ import Button from '../assets/layouts/ui/buttons'
 import { useCart } from '../contexts/cart'
 import { useAuth } from '../contexts/auth'
 import { createOrder } from '../services/orders.service'
+import { formatPrice } from '../utils/money'
 
 export function CheckoutPage() {
 	const { items, subtotal, discountCode, discountAmount, total, clearCart } = useCart()
@@ -49,13 +50,13 @@ export function CheckoutPage() {
 				))}
 			</ul>
 
-			<p>Subtotal: ${subtotal}</p>
+			<p>Subtotal: ${formatPrice(subtotal)}</p>
 			{discountCode && (
 				<p>
-					Descuento ({discountCode}): -${discountAmount}
+					Descuento ({discountCode}): -${formatPrice(discountAmount)}
 				</p>
 			)}
-			<p>Total: ${total}</p>
+			<p>Total: ${formatPrice(total)}</p>
 
 			{error && <p role="alert">{error}</p>}
 

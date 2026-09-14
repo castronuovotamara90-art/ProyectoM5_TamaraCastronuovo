@@ -1,8 +1,9 @@
 import type { CartAction, CartState } from './CartContext.types'
 import type { CartItem } from '../../types/cartItem.types'
+import { roundMoney } from '../../utils/money'
 
 function calculateTotal(items: CartItem[]): number {
-	return items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+	return roundMoney(items.reduce((sum, item) => sum + item.product.price * item.quantity, 0))
 }
 
 // Reducer puro: nada de React, nada de context. Dado un estado y una

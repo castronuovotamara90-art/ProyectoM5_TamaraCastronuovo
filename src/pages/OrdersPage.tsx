@@ -6,6 +6,7 @@ import { LoadingState } from '../assets/common/LoadingState'
 import { ErrorState } from '../assets/common/ErrorState'
 import { EmptyState } from '../assets/common/EmptyState'
 import type { Order } from '../types/order.types'
+import { formatPrice } from '../utils/money'
 
 export function OrdersPage() {
 	const { user } = useAuth()
@@ -43,7 +44,7 @@ export function OrdersPage() {
 				{orders.map((order) => (
 					<li key={order.id}>
 						<Link to={`/orders/${order.id}`}>
-							Pedido #{order.id.slice(0, 8)} — ${order.total} — {order.status}
+							Pedido #{order.id.slice(0, 8)} — ${formatPrice(order.total)} — {order.status}
 						</Link>
 					</li>
 				))}

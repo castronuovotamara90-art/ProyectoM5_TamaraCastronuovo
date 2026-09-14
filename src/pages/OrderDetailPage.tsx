@@ -5,6 +5,7 @@ import { LoadingState } from '../assets/common/LoadingState'
 import { ErrorState } from '../assets/common/ErrorState'
 import { EmptyState } from '../assets/common/EmptyState'
 import type { Order } from '../types/order.types'
+import { formatPrice } from '../utils/money'
 
 export function OrderDetailPage() {
 	const { id } = useParams<{ id: string }>()
@@ -42,12 +43,12 @@ export function OrderDetailPage() {
 			<ul className="flex flex-col gap-1">
 				{order.items.map(({ product, quantity }) => (
 					<li key={product.id}>
-						{product.name} x {quantity} — ${product.price * quantity}
+						{product.name} x {quantity} — ${formatPrice(product.price * quantity)}
 					</li>
 				))}
 			</ul>
 
-			<p>Total: ${order.total}</p>
+			<p>Total: ${formatPrice(order.total)}</p>
 		</div>
 	)
 }
