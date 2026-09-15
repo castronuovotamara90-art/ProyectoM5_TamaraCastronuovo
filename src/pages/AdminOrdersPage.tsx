@@ -4,6 +4,7 @@ import { ErrorState } from '../assets/common/ErrorState'
 import { EmptyState } from '../assets/common/EmptyState'
 import { subscribeToAllOrders, updateOrderStatus } from '../services/orders.service'
 import type { Order, OrderStatus } from '../types/order.types'
+import { formatPrice } from '../utils/money'
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
 	pending: 'Pendiente',
@@ -99,7 +100,7 @@ export function AdminOrdersPage() {
 						>
 							<span className="flex-1">
 								#{order.id.slice(0, 8)} — usuario {order.userId.slice(0, 8)} — $
-								{order.total}
+								{formatPrice(order.total)}
 							</span>
 							<select
 								value={order.status}
