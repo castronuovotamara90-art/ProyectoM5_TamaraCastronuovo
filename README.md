@@ -104,10 +104,24 @@ npm run dev
 | `npm run dev` | Servidor de desarrollo (Vite) |
 | `npm run build` | Type-check + build de producción |
 | `npm run lint` | Linter (ESLint) |
+| `npm run test` | Corre la suite de tests una vez (Vitest) |
+| `npm run test:watch` | Corre los tests en modo watch |
 | `npm run preview` | Sirve el build de producción localmente |
 | `npm run seed` | Borra y recrea los 60 productos del catálogo |
 | `npm run update-images` | Actualiza solo las imágenes de los productos existentes, sin borrar nada |
 | `npm run seed-coupons` | Crea/actualiza los cupones de descuento de ejemplo |
+
+## Testing
+
+Con [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/react). Cubre:
+
+- **`src/contexts/cart/cartReducer.test.ts`** — las 6 acciones del reducer del carrito (agregar, eliminar, actualizar cantidad, limpiar, aplicar/quitar descuento), incluyendo casos límite (tope de stock, cantidad 0 elimina el item).
+- **`src/hooks/useDebounce.test.ts`** — el hook de debounce aislado, con fake timers.
+- **`src/contexts/cart/useCart.test.tsx`** — test de integración: `useCart()` a través de un `<CartProvider>` real (wrapper de provider reutilizable), incluyendo `applyDiscountCode` con `fetch` mockeado (no pega contra el servidor real).
+
+```bash
+npm run test
+```
 
 ## Modelo de datos (Firestore)
 
