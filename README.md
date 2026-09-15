@@ -4,6 +4,8 @@ E-commerce de productos para bebés, desarrollado como proyecto del Módulo 5 de
 
 🔗 **Demo en producción:** [proyecto-m5-tamara-castronuovo-three.vercel.app](https://proyecto-m5-tamara-castronuovo-three.vercel.app/)
 
+📓 **Bitácora de uso de IA:** [BITACORA.md](./BITACORA.md)
+
 ## Stack
 
 - **React 19 + TypeScript + Vite** — SPA con React Router.
