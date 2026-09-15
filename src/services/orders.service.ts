@@ -4,6 +4,7 @@ import {
 	doc,
 	getDoc,
 	getDocs,
+	onSnapshot,
 	orderBy,
 	query,
 	serverTimestamp,
@@ -74,6 +75,23 @@ export const listAllOrders = async (): Promise<Order[]> => {
 	const snapshot = await getDocs(q)
 
 	return snapshot.docs.map(mapOrder)
+}
+
+//* Todas las órdenes en tiempo real (uso admin): el panel se actualiza
+// solo cuando entra un pedido nuevo o cambia de estado (por ejemplo,
+// desde otra pestaña o otro admin), sin recargar la página. Devuelve
+// la función de unsubscribe para cortar el listener al desmontar.
+export const subscribeToAllOrders = (
+	onChange: (orders: Order[]) => void,
+	onError: (error: Error) => void,
+): (() => void) => {
+	const q = query(ordersCollection, orderBy('createdAt', 'desc'))
+
+	return onSnapshot(
+		q,
+		(snapshot) => onChange(snapshot.docs.map(mapOrder)),
+		onError,
+	)
 }
 
 //* Cambiar el estado de una orden (uso admin):

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState, useTransition } from 'react'
+import { useEffect, useState } from 'react'
 import { LoadingState } from '../assets/common/LoadingState'
 import { ErrorState } from '../assets/common/ErrorState'
 import { EmptyState } from '../assets/common/EmptyState'
-import { listAllOrders, updateOrderStatus } from '../services/orders.service'
+import { subscribeToAllOrders, updateOrderStatus } from '../services/orders.service'
 import type { Order, OrderStatus } from '../types/order.types'
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
@@ -17,34 +17,42 @@ const STATUS_OPTIONS: OrderStatus[] = ['pending', 'processing', 'completed', 'ca
 export function AdminOrdersPage() {
 	const [orders, setOrders] = useState<Order[]>([])
 	const [error, setError] = useState<string | null>(null)
-	const [loading, startTransition] = useTransition()
+	const [loading, setLoading] = useState(true)
 	const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all')
 	const [updatingId, setUpdatingId] = useState<string | null>(null)
+	// Cambiar este valor fuerza al efecto de abajo a resuscribirse: es
+	// el "reintentar" de un listener en vivo (no hay una sola llamada
+	// que repetir, como con un fetch tradicional).
+	const [retryKey, setRetryKey] = useState(0)
 
-	const loadOrders = useCallback(() => {
-		startTransition(async () => {
-			try {
-				const result = await listAllOrders()
-				setOrders(result)
-				setError(null)
-			} catch (err) {
-				setError(err instanceof Error ? err.message : 'No se pudieron cargar las órdenes.')
-			}
-		})
-	}, [])
-
+	// Listener en tiempo real: el panel se actualiza solo cuando entra
+	// un pedido nuevo o alguien cambia el estado de uno, sin recargar.
+	// (loading/error para el reintento se resetean en el onClick del
+	// botón, no acá: llamar setState sincrónico en el cuerpo de un
+	// efecto dispara un render en cascada innecesario).
 	useEffect(() => {
-		loadOrders()
-	}, [loadOrders])
+		const unsubscribe = subscribeToAllOrders(
+			(result) => {
+				setOrders(result)
+				setLoading(false)
+			},
+			(err) => {
+				setError(err.message || 'No se pudieron cargar las órdenes.')
+				setLoading(false)
+			},
+		)
+
+		return unsubscribe
+	}, [retryKey])
 
 	const handleStatusChange = async (orderId: string, status: OrderStatus) => {
 		setUpdatingId(orderId)
 
 		try {
 			await updateOrderStatus(orderId, status)
-			setOrders((current) =>
-				current.map((order) => (order.id === orderId ? { ...order, status } : order)),
-			)
+			// No hace falta actualizar `orders` a mano: el listener de
+			// arriba recibe el cambio solo (con latencia compensada, se
+			// ve al instante igual que con un setState local).
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'No se pudo actualizar el estado.')
 		} finally {
@@ -52,8 +60,14 @@ export function AdminOrdersPage() {
 		}
 	}
 
+	const handleRetry = () => {
+		setLoading(true)
+		setError(null)
+		setRetryKey((key) => key + 1)
+	}
+
 	if (loading) return <LoadingState message="Cargando órdenes..." />
-	if (error) return <ErrorState message={error} onRetry={loadOrders} />
+	if (error) return <ErrorState message={error} onRetry={handleRetry} />
 
 	const filteredOrders =
 		statusFilter === 'all' ? orders : orders.filter((order) => order.status === statusFilter)
