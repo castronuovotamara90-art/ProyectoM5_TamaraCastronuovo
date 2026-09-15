@@ -61,6 +61,47 @@ scripts/
 firestore.rules         Reglas de seguridad de Firestore
 ```
 
+## Subida de imágenes: flujo de presigned URLs
+
+El navegador **nunca** tiene las credenciales de AWS ni sube el archivo a través de nuestro propio servidor. En cambio:
+
+```
+Admin selecciona imagen (ImageUploader.tsx)
+        │
+        ▼
+1. POST /api/presign  { filename, contentType, fileSize }
+   + Header Authorization: Bearer <ID token de Firebase>
+        │
+        ▼
+2. api/presign.ts (Vercel Function, corre en el servidor):
+   a) Verifica el ID token con Firebase Admin (getAuth().verifyIdToken)
+   b) Busca el usuario en Firestore y confirma que role === 'admin'
+   c) Valida tipo de archivo (jpeg/png/webp) y tamaño (máx. 5MB)
+   d) Genera un nombre de archivo único y sanitizado
+   e) Pide a AWS (con las credenciales del servidor) una URL firmada
+      con getSignedUrl() + PutObjectCommand, válida por 60 segundos
+        │
+        ▼
+3. La función devuelve { url, publicUrl } al navegador
+   (la URL firmada, NO las credenciales)
+        │
+        ▼
+4. El navegador hace PUT directo a esa URL, subiendo el archivo
+   directamente a S3 (upload.service.ts) — Vercel/nuestro servidor
+   ya no participan en esta parte
+        │
+        ▼
+5. Se guarda publicUrl como `image` del producto en Firestore
+```
+
+**Por qué es más seguro que subir el archivo a través del propio servidor:**
+- Las credenciales de AWS (`AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`) viven solo en las variables de entorno de la Vercel Function — jamás se envían al navegador ni aparecen en el bundle de JS.
+- La URL firmada autoriza una única operación (`PUT` a una `key` específica) y expira en 60 segundos: aunque alguien la intercepte, no sirve para nada más.
+- El archivo pesado (la imagen) nunca pasa por nuestro servidor — evita cargarlo con tráfico y límites de tamaño de las funciones serverless.
+- La autorización (¿es admin?) se valida **antes** de generar la URL firmada, del lado del servidor — no alcanza con ocultar un botón en el frontend.
+
+Código relevante: [`api/presign.ts`](./api/presign.ts) (genera la URL), [`src/services/upload.service.ts`](./src/services/upload.service.ts) (pide la URL y hace el PUT a S3), [`src/assets/common/ImageUploader.tsx`](./src/assets/common/ImageUploader.tsx) (UI).
+
 ## Puesta en marcha local
 
 ### 1. Instalar dependencias
